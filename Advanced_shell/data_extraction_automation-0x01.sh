@@ -1,0 +1,18 @@
+#!/bin/bash
+# Task 1: Extract Pokémon Data
+
+if [ ! -f data.json ]; then
+    echo "data.json not found! Run the API automation script first."
+    exit 1
+fi
+
+name=$(jq -r '.name' data.json | sed 's/.*/\u&/')
+type=$(jq -r '.types[0].type.name' data.json | sed 's/.*/\u&/')
+weight=$(jq -r '.weight' data.json)
+height=$(jq -r '.height' data.json)
+
+# Convert to kg and m (API returns weight in hectograms and height in decimeters)
+weight_kg=$(awk "BEGIN {printf \"%.1f\", $weight/10}")
+height_m=$(awk "BEGIN {printf \"%.1f\", $height/10}")
+
+echo "$name is of type $type, weighs ${weight_kg}kg, and is ${height_m}m tall."
