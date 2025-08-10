@@ -1,0 +1,30 @@
+#!/bin/bash
+# Task 4: Batch Pokémon Data Retrieval with Retry Logic
+
+POKEMON_LIST=(bulbasaur ivysaur venusaur charmander charmeleon)
+DATA_DIR="pokemon_data"
+mkdir -p "$DATA_DIR"
+
+for name in "${POKEMON_LIST[@]}"; do
+    echo "Fetching data for $name..."
+    API_URL="https://pokeapi.co/api/v2/pokemon/$name"
+    OUT_FILE="$DATA_DIR/${name}.json"
+    RETRIES=0
+    SUCCESS=0
+    while [ $RETRIES -lt 3 ]; do
+        if curl -s -f "$API_URL" -o "$OUT_FILE"; then
+            echo "Saved data to $OUT_FILE ✅"
+            SUCCESS=1
+            break
+        else
+            ((RETRIES++))
+            echo "Attempt $RETRIES failed for $name. Retrying..."
+            sleep 2
+        fi
+    done
+    if [ $SUCCESS -eq 0 ]; then
+        echo "Failed to fetch data for $name from $API_URL after 3 attempts at $(date)" >> errors.txt
+    fi
+    sleep 2 # Delay to handle rate limiting
+
+done
