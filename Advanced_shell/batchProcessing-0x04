@@ -21,8 +21,12 @@ for name in "${POKEMON_LIST[@]}"; do
 done
 
 # Wait for all background jobs to finish
+
 for pid in "${pids[@]}"; do
-    wait $pid
+    if ! wait $pid; then
+        echo "Process $pid failed, killing..."
+        kill $pid 2>/dev/null
+    fi
 done
 
 echo "All parallel fetches complete."
